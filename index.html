@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chatt</title>
+<style>
+body{font-family:sans-serif;max-width:500px;margin:auto;padding:10px}
+#log div{margin:8px 0;padding:8px 12px;border-radius:12px;background:#eee}
+#log .u{background:#c2570c;color:#fff;text-align:right}
+input{width:70%;padding:10px}button{padding:10px}
+</style>
+</head>
+<body>
+<div id="log"><div>Hej! Vad vill du ha hjälp med?</div></div>
+<input id="in" placeholder="Skriv här...">
+<button onclick="send()">Skicka</button>
+<script>
+let messages = [];
+async function send() {
+  const input = document.getElementById("in");
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = "";
+  add(text, "u");
+  messages.push({ role: "user", text });
+  const r = await fetch("/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ messages })
+  });
+  const d = await r.json();
+  messages.push({ role: "model", text: d.text });
+  add(d.text, "a");
+}
+function add(t, c) {
+  const el = document.createElement("div");
+  el.className = c;
+  el.textContent = t;
+  document.getElementById("log").appendChild(el);
+}
+</script>
+</body>
+</html>
